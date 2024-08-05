@@ -1,3 +1,17 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Witanina/Jailbreak/d7b2f3573a5a39a6d96bc5ba96f77dc2c406311d/Esp%26Tracer?token=GHSAT0AAAAAACVXAEDWD7WDCTWQ63TREXWYZVQ3UVA"))()
 
+—aimbot
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Witanina/Jailbreak/d7b2f3573a5a39a6d96bc5ba96f77dc2c406311d/Aimbot?token=GHSAT0AAAAAACVXAEDXQ6ZTUMKFZXRIJH6WZVQ3UCQ"))()
+
+—help
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Witanina/Jailbreak/main/Help?token=GHSAT0AAAAAACVXAEDW5W5THDVEGB6WQORCZVQ4CBA"))()
+
+—hackmenu
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local function onCommand(command)
+    if command == "/e hackmenu" then
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/zyn789/Aoi-Script/main/Jailbreak"))()
+    end
+end
