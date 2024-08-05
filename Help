@@ -34,7 +34,7 @@ local function createGui()
     commandLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
     commandLabel.TextSize = 14 -- Smaller text size
     commandLabel.TextTransparency = 0.6 -- 60% opacity of the text
-    commandLabel.Text = "/e aimbot [on, off]\n/e esp [on, off]\n/e tracer [on, off]" -- Command text
+    commandLabel.Text = "/e aimbot [on, off]\n/e esp [on, off]\n/e tracer [on, off]\n/e hackmenu" -- Command text
     commandLabel.TextWrapped = true -- Wrap text to fit within the label
     commandLabel.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
     commandLabel.TextYAlignment = Enum.TextYAlignment.Top -- Align text to the top
