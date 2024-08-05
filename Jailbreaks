@@ -1,0 +1,78 @@
+local PLAYER = game.Players.LocalPlayer
+local MOUSE = PLAYER:GetMouse()
+local CC = game.Workspace.CurrentCamera
+local UserInputService = game:GetService('UserInputService')
+
+ENABLED = false
+ESP_ENABLED = true
+
+-- Always aim at the head
+local AIM_AT = 'Head'
+_G.TOGGLE_AIMBOT = Enum.KeyCode.DPadLeft -- Controller button for toggling aimbot
+
+function GetNearestPlayerToMouse()
+    local PLAYERS = {}
+    local PLAYER_HOLD = {}
+    local DISTANCES = {}
+    
+    for i, v in pairs(game.Players:GetPlayers()) do
+        if v ~= PLAYER then
+            table.insert(PLAYERS, v)
+        end
+    end
+    
+    for i, v in pairs(PLAYERS) do
+        local AIM = v.Character:FindFirstChild(AIM_AT)
+        if AIM then
+            local DISTANCE = (AIM.Position - game.Workspace.CurrentCamera.CoordinateFrame.p).magnitude
+            local RAY = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (MOUSE.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
+            local HIT, POS = game.Workspace:FindPartOnRay(RAY, game.Workspace)
+            local DIFF = math.floor((POS - AIM.Position).magnitude)
+            PLAYER_HOLD[v.Name .. i] = {}
+            PLAYER_HOLD[v.Name .. i].dist = DISTANCE
+            PLAYER_HOLD[v.Name .. i].plr = v
+            PLAYER_HOLD[v.Name .. i].diff = DIFF
+            table.insert(DISTANCES, DIFF)
+        end
+    end
+    
+    if #DISTANCES == 0 then
+        return false
+    end
+    
+    local L_DISTANCE = math.floor(math.min(unpack(DISTANCES)))
+    if L_DISTANCE > 20 then
+        return false
+    end
+    
+    for i, v in pairs(PLAYER_HOLD) do
+        if v.diff == L_DISTANCE then
+            return v.plr
+        end
+    end
+    return false
+end
+
+local function onInput(input, gameProcessed)
+    if not gameProcessed then
+        if input.UserInputType == Enum.UserInputType.Gamepad1 then
+            if input.KeyCode == _G.TOGGLE_AIMBOT then
+                ENABLED = not ENABLED
+            end
+        end
+    end
+end
+
+UserInputService.InputBegan:Connect(onInput)
+
+game:GetService('RunService').RenderStepped:Connect(function()
+    if ENABLED then
+        local TARGET = GetNearestPlayerToMouse()
+        if TARGET then
+            local AIM = TARGET.Character:FindFirstChild(AIM_AT)
+            if AIM then
+                CC.CoordinateFrame = CFrame.new(CC.CoordinateFrame.p, AIM.CFrame.p)
+            end
+        end
+    end
+end)
