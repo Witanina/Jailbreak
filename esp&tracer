@@ -1,0 +1,146 @@
+-- This script should be placed in a LocalScript under StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = Workspace.CurrentCamera
+
+-- Settings for ESP
+local highlightEnabled = false
+local tracerEnabled = false
+local Tracer_Thickness = 1.4
+local Tracer_Transparency = 1
+
+-- Function to update highlights for all players
+local function updatePlayerHighlights()
+    if not highlightEnabled then
+        return
+    end
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        local char = player.Character
+        if char and char:FindFirstChild("Head") then
+            local highlight = char:FindFirstChild("Highlight")
+            if not highlight then
+                highlight = Instance.new("Highlight")
+                highlight.Name = "Highlight"
+                highlight.Adornee = char
+                highlight.Parent = char
+            end
+            
+            local teamColor = player.TeamColor.Color
+            highlight.FillColor = teamColor
+            highlight.OutlineColor = teamColor
+            highlight.OutlineTransparency = 0
+            highlight.FillTransparency = 0
+        end
+    end
+end
+
+-- Function to toggle highlights and tracers based on chat commands
+local function toggleFeatures(command)
+    if command == "/e esp on" then
+        highlightEnabled = true
+        print("ESP enabled")
+    elseif command == "/e esp off" then
+        highlightEnabled = false
+        for _, player in ipairs(Players:GetPlayers()) do
+            local char = player.Character
+            if char and char:FindFirstChild("Highlight") then
+                char.Highlight:Destroy()
+            end
+        end
+        print("ESP disabled")
+    elseif command == "/e tracer on" then
+        tracerEnabled = true
+        print("Tracers enabled")
+    elseif command == "/e tracer off" then
+        tracerEnabled = false
+        -- Hide all tracers
+        for _, plr in ipairs(Players:GetPlayers()) do
+            local tracer = plr:FindFirstChild("Tracer")
+            if tracer then
+                tracer.Visible = false
+            end
+        end
+        print("Tracers disabled")
+    end
+end
+
+-- Function to create ESP tracer
+local function NewLine()
+    local success, line = pcall(function()
+        return Drawing.new("Line")
+    end)
+    if not success then
+        warn("Failed to create Drawing Line")
+        return nil
+    end
+    line.Visible = false
+    line.From = Vector2.new(0, 0)
+    line.To = Vector2.new(0, 0)
+    line.Thickness = Tracer_Thickness
+    line.Transparency = Tracer_Transparency
+    return line
+end
+
+local function CreateESP(plr)
+    local tracer = NewLine()
+    if not tracer then
+        return
+    end
+    tracer.Name = "Tracer"  -- Tag the tracer for easy access
+
+    local function ESP()
+        local connection
+        connection = RunService.RenderStepped:Connect(function()
+            if tracerEnabled and plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Name ~= LocalPlayer.Name and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("Head") then
+                local pos, vis = Camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+                if vis and tracerEnabled then
+                    local trace = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+
+                    tracer.From = trace
+                    tracer.To = Vector2.new(pos.X, pos.Y)
+                    tracer.Color = plr.TeamColor.Color  -- Set the tracer color to the player's team color
+                    tracer.Visible = true
+                else
+                    tracer.Visible = false
+                end
+            else
+                tracer.Visible = false
+                if not Players:FindFirstChild(plr.Name) then
+                    connection:Disconnect()
+                end
+            end
+        end)
+    end
+    coroutine.wrap(ESP)()
+end
+
+-- Handle chat commands
+LocalPlayer.Chatted:Connect(function(message)
+    toggleFeatures(message)
+end)
+
+-- Apply ESP to existing players
+for _, plr in pairs(Players:GetPlayers()) do
+    if plr ~= LocalPlayer then
+        CreateESP(plr)
+    end
+end
+
+-- Apply ESP to new players
+Players.PlayerAdded:Connect(function(newplr)
+    if newplr ~= LocalPlayer then
+        CreateESP(newplr)
+    end
+end)
+
+-- Update highlights periodically
+while true do
+    wait(0.1)  -- Refresh every 0.1 seconds
+    updatePlayerHighlights()
+end
+
+print("ESP script initialized")
