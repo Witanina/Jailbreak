@@ -1,1 +1,60 @@
+-- Function to create and show the GUI
+local function createGui()
+    -- Create a ScreenGui and parent it to the player's PlayerGui
+    local player = game.Players.LocalPlayer
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "HelpGui"
+    screenGui.Parent = player.PlayerGui
 
+    -- Create the big rectangle
+    local bigRectangle = Instance.new("Frame")
+    bigRectangle.Size = UDim2.new(0.5, 0, 0.5, 0) -- Size of the big rectangle
+    bigRectangle.Position = UDim2.new(0.25, 0, 0.25, 0) -- Center of the screen
+    bigRectangle.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black color
+    bigRectangle.BackgroundTransparency = 0.6 -- 60% opacity
+    bigRectangle.Parent = screenGui
+
+    -- Create the small square for the close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0.15, 0, 0.15, 0) -- Size of the small square
+    closeButton.Position = UDim2.new(0.85, 0, 0.1, 0) -- Position at the top-right corner of the big rectangle
+    closeButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black color
+    closeButton.BackgroundTransparency = 0.6 -- 60% opacity
+    closeButton.Text = "X" -- Close button text
+    closeButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+    closeButton.TextSize = 24 -- Size of the text
+    closeButton.TextTransparency = 0.6 -- 60% opacity of the text
+    closeButton.Parent = bigRectangle
+
+    -- Create the text label with command instructions
+    local commandLabel = Instance.new("TextLabel")
+    commandLabel.Size = UDim2.new(1, 0, 1, 0) -- Size to fill the big rectangle
+    commandLabel.Position = UDim2.new(0, 0, 0, 0) -- Align with the big rectangle
+    commandLabel.BackgroundTransparency = 1 -- Transparent background
+    commandLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text color
+    commandLabel.TextSize = 14 -- Smaller text size
+    commandLabel.TextTransparency = 0.6 -- 60% opacity of the text
+    commandLabel.Text = "/e aimbot [on, off]\n/e esp [on, off]\n/e tracer [on, off]" -- Command text
+    commandLabel.TextWrapped = true -- Wrap text to fit within the label
+    commandLabel.TextXAlignment = Enum.TextXAlignment.Left -- Align text to the left
+    commandLabel.TextYAlignment = Enum.TextYAlignment.Top -- Align text to the top
+    commandLabel.Parent = bigRectangle
+
+    -- Function to close the menu when the button is clicked
+    local function closeMenu()
+        screenGui:Destroy()
+    end
+
+    closeButton.MouseButton1Click:Connect(closeMenu)
+end
+
+-- Listen for chat messages
+game.Players.LocalPlayer.Chatted:Connect(function(message)
+    if message:lower() == "/e help" then
+        -- Check if the GUI is already open
+        local existingGui = game.Players.LocalPlayer.PlayerGui:FindFirstChild("HelpGui")
+        if not existingGui then
+            createGui()
+        end
+    end
+end)
